@@ -1,0 +1,32 @@
+﻿@page "/movie/{MovieTittle}"
+@using Sep6FrontEndBlazor2.DomainClasses
+@using Sep6FrontEndBlazor2.Services
+<MudContainer Class="d-inline-flex" Style="padding-top: 10px">
+    <MudImage Src=@_movie.poster_path Height="500" Width="500" > </MudImage>
+    <MudContainer>
+        <MudText Typo="Typo.h3">@_movie.title</MudText>
+        <MudText Typo="Typo.body2">@_movie.overview</MudText>
+    </MudContainer>
+        
+</MudContainer>
+
+
+
+@code {
+    [Parameter]
+    public string MovieTittle { get; set; }
+
+    private Movie _movie = new Movie();
+    private MovieServices _movieServices;
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _movieServices = new MovieServices();
+        _movie = await _movieServices.getMovieAsync(Int32.Parse(MovieTittle));
+       
+        _movie.poster_path = "https://image.tmdb.org/t/p/original/" + _movie.poster_path;
+        
+        await base.OnInitializedAsync();
+    }
+
+}

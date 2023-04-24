@@ -1,0 +1,43 @@
+﻿@page "/"
+@using Sep6FrontEndBlazor2.DomainClasses
+@using Sep6FrontEndBlazor2.Services
+@inject NavigationManager _navMgr
+
+
+<MudText Typo="Typo.h3">Popular Movies</MudText>
+<MudText>
+    <MudList Class="d-flex flex-nowrap gap-4 overflow-auto" >
+        @foreach (var movie in _popularMovies)
+        {
+            <div @onclick="@(()=>getMovieAsync(@movie.id.ToString()))" >
+        <MudItem Style="float: left;">
+            <MudImage Src=@movie.poster_path Height="250" Width="250" > </MudImage>
+            <MudText Align="Align.Center"> @movie.title</MudText>
+        </MudItem>
+        </div>
+        }
+    </MudList>
+  
+</MudText>
+
+@code
+{
+    private List<Movie> _popularMovies = new List<Movie>();
+    private MovieServices _movieServices;
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _movieServices = new MovieServices();
+        _popularMovies = await _movieServices.GetMostPopularMoviesAsync();
+        foreach (var movie in _popularMovies)
+        {
+            movie.poster_path = "https://image.tmdb.org/t/p/original/" + movie.poster_path;
+        }
+        await base.OnInitializedAsync();
+    }
+
+    private void getMovieAsync(string movieTitle)
+    {
+        _navMgr.NavigateTo($"/movie/{movieTitle}");
+    }
+}
