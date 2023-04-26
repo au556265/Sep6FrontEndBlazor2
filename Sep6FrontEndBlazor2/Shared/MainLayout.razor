@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager _navMgr
 
 <div class="page">
     
@@ -9,8 +10,22 @@
        
         <MudLayout>
             <MudAppBar>
-                    My Application
-                </MudAppBar>
+                <MudItem>
+                    <MudSelect Dense="true" @bind-Value="filterValue" Class="flex-grow-0" T="string" Label="Filter" Variant="Variant.Filled">
+                                        <MudSelectItem Value="@("Movie")"/>
+                                        <MudSelectItem Value="@("Actor")"/>
+                                        <MudSelectItem Value="@("TV-Series")"/>
+                        </MudSelect>
+               </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="searchValue" Style="color: white" Label="Search" Variant="Variant.Outlined"></MudTextField>
+                </MudItem>
+                <MudItem>
+                    <MudIconButton Icon="@Icons.Material.Filled.Search" Color="Color.Info" aria-label="search" @onclick="@(() => onClickSearchAsync())"></MudIconButton>
+                </MudItem>
+                 
+                                
+            </MudAppBar>
                 <MudDrawer Open="false">
             
                 </MudDrawer>
@@ -20,3 +35,15 @@
         </MudLayout>
     </main>
 </div>
+
+
+@code {
+    public string searchValue { get; set; }
+    public string filterValue = "Movie";
+
+    private void onClickSearchAsync()
+    {
+        _navMgr.NavigateTo($"/SearchPage/{searchValue}/{filterValue}");
+    }
+
+}

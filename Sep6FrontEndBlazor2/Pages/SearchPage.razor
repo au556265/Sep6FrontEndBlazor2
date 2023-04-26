@@ -1,0 +1,67 @@
+﻿@page "/SearchPage/{searchValue}/{filterValue}"
+
+@inject NavigationManager _navMgr
+@using Sep6FrontEndBlazor2.DomainClasses
+@using Sep6FrontEndBlazor2.Services
+<h3>SearchPage</h3>
+<MudPaper Width="1500 px">
+    <MudList>
+        @foreach (Movie movie in @_movieList)
+        {
+            <MudListItem Style="border: 1px solid black" @onclick="@(()=>getMovieAsync(@movie.id.ToString()))">
+                    <MudImage Src=@movie.poster_path Height="200" Width="200" Style="float: left"> </MudImage>
+                <MudItem Style="float: left" >
+                     <MudText Typo="Typo.h5">@movie.title</MudText>
+                    <MudText Typo="Typo.body1">Release date: @movie.release_date</MudText>
+                    <MudText Typo="Typo.body2">Description: @movie.overview</MudText>
+                </MudItem>
+               
+            </MudListItem>
+        }
+    </MudList>
+</MudPaper>
+@code {
+    [Parameter]
+    public string searchValue { get; set; }
+    
+    [Parameter]
+    public string filterValue { get; set; }
+
+    public List<Movie> _movieList = new List<Movie>();
+    public MovieServices _movieServices;
+    
+    protected async override Task OnInitializedAsync()
+    {
+        _movieServices = new MovieServices();
+        switch (filterValue)
+        {
+            case "Movie":
+            {
+                _movieList = await _movieServices.get5MoviesBySearchAsync(searchValue);
+                foreach (var movie in _movieList)
+                {
+                    movie.poster_path = "https://image.tmdb.org/t/p/original/" + movie.poster_path;
+                }
+                break;
+            }
+            case "Actor":
+            {
+                break;
+            }
+            case "TV-Series":
+            {
+                break;
+            }
+
+
+        }
+        
+    }
+
+    private void getMovieAsync(string movieTitle)
+    {
+        _navMgr.NavigateTo($"/movie/{movieTitle}");
+
+    }
+
+}
