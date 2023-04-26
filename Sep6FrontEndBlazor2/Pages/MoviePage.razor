@@ -1,32 +1,60 @@
-﻿@page "/movie/{MovieTittle}"
+﻿@page "/movie/{MovieId}"
 @using Sep6FrontEndBlazor2.DomainClasses
 @using Sep6FrontEndBlazor2.Services
 <MudContainer Class="d-inline-flex" Style="padding-top: 10px">
     <MudImage Src=@_movie.poster_path Height="500" Width="500" > </MudImage>
     <MudContainer>
         <MudText Typo="Typo.h3">@_movie.title</MudText>
-        <MudText Typo="Typo.body2">@_movie.overview</MudText>
+        <MudText Typo="Typo.body1">Release date:@_movie.release_date</MudText>
+        <MudText Typo="Typo.body2">Description: @_movie.overview</MudText>
     </MudContainer>
-        
 </MudContainer>
+<div class="d-flex flex-column align-center">
+    <MudRating SelectedValueChanged="i => valueChanged(i)" SelectedValue="@_ratingValue" MaxValue="10"  />
+    <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">Rate movie</MudText>
+</div>
+<div class="d-flex flex-column align-center">
+    <MudRating SelectedValueChanged="i => FavoriteValueChanged(i)" SelectedValue="@_favoriteValue" FullIcon="@Icons.Material.Filled.Favorite" EmptyIcon="@Icons.Material.Filled.FavoriteBorder" Color="Color.Secondary" MaxValue="1" />
+        <MudText Typo="Typo.subtitle2" Class="deep-purple-text mt-2">Favorite movie</MudText>
+
+</div>
 
 
 
 @code {
     [Parameter]
-    public string MovieTittle { get; set; }
+    public string MovieId { get; set; }
 
+    public int _ratingValue { get; set; }
+    public int _favoriteValue { get; set; }
     private Movie _movie = new Movie();
+    
     private MovieServices _movieServices;
+    private UserService _userServices;
     
     protected async override Task OnInitializedAsync()
     {
         _movieServices = new MovieServices();
-        _movie = await _movieServices.getMovieAsync(Int32.Parse(MovieTittle));
+        _userServices = new UserService();
+        _movie = await _movieServices.getMovieAsync(Int32.Parse(MovieId));
        
         _movie.poster_path = "https://image.tmdb.org/t/p/original/" + _movie.poster_path;
-        
+
+        _ratingValue = await _userServices.getMovieRatingAsync("test",Int32.Parse(MovieId));
+        _favoriteValue = Convert.ToInt32(await _userServices.getFavoriteMovieAsync("test", Int32.Parse(MovieId)));
         await base.OnInitializedAsync();
+    }
+
+    private async Task valueChanged(int i)
+    {
+        _ratingValue = i;
+       await _userServices.setMovieRatingAsync("test",Int32.Parse(MovieId),i);
+    }
+
+    private async Task FavoriteValueChanged(int i)
+    {
+        _favoriteValue = i;
+        await _userServices.setMovieFavoriteAsync("test", Int32.Parse(MovieId), i);
     }
 
 }
